@@ -7,7 +7,7 @@ description: "Every failure is leading towards success."
 keyword: "Shannon, 林子子的博客,linzizi, 林子子, iOS, Apple, iPhone"
 url: "http://lin-zizi.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
-github_repo: "https://github.com/qiubaiying/qiubaiying.github.io.git" # you code repository
+github_repo: "https://github.com/lin-zizi/lin-zizi.github.io/git" # you code repository
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
