@@ -1,7 +1,7 @@
 # Site settings
 title: MY Blog
 SEOTitle: 林子子的博客 | Shannon
-header-img: img/post-bg-desk.jpg
+header-img: img/timg.jpg
 email: carollxn1010@163.com
 description: "Every failure is leading towards success."
 keyword: "Shannon, 林子子的博客,linzizi, 林子子, iOS, Apple, iPhone"
@@ -12,7 +12,7 @@ github_repo: "https://github.com/qiubaiying/qiubaiying.github.io.git" # you code
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "没什么好说的。"
-sidebar-avatar: /img/about-BY-gentle.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/CMNT4794.jpg     # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
