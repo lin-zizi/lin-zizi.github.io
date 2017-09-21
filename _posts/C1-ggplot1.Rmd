@@ -1,0 +1,484 @@
+---
+title: "第一讲：ggplot"
+author: "林子子 张悦"
+date: "2017年9月20日"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+# R编程简介
+## 基本算数
+```{r}
+1+1
+1+2+3
+3*7*4
+4/3
+```
+
+## 变量
+**变量赋值**
+```{r}
+x<-1
+y=5
+a<-b<-6
+a
+b
+assign("j",2)
+j
+
+```
+**消除变量**
+```{r}
+rm(j)
+```
+
+##数据类型
+**数值型**
+```{r}
+class(x)
+is.numeric(x)
+i=3L
+is.integer(i)
+is.numeric(i)
+```
+
+
+**字符型**
+```{r}
+x="name"
+x
+y=factor("name")
+y
+nchar(x)
+```
+
+**逻辑型**
+```{r}
+TRUE*5
+FALSE*5
+k=TRUE
+class(k)
+is.logical(k)
+2==3
+2!=3
+2<3
+2<=3
+"data"=="name"
+
+```
+
+
+## 数据结构
+**向量**
+```{r}
+x=c(1,2,3,4,5,6) 
+x
+x*2
+x+2
+sqrt(x)
+10:1
+seq(-2,3,1)
+x+y
+x*y
+x^y
+x[1]
+x[1:3]
+x[c(1,4)]
+```
+
+**data.frames**
+```{r}
+x=10:1
+y=-4:5
+q = c("Hockey","Football","Baseball","Curling","Rugby","Lacrosse","Basketball","Tennis","Cricket","Soccer")
+MyData=data.frame(x,y,q)
+MyData
+MyData=data.frame(First=x,Second=y,Sport=q)
+MyData
+nrow(MyData)#行数
+ncol(MyData)#列数
+dim(MyData)#数据的行数和列数
+names(MyData)#列名称
+names(MyData)[1] #第一列名称
+rownames(MyData)
+rownames(MyData)=c("One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten")
+MyData$Sport
+MyData[,3]
+MyData[,2]
+```
+
+**Lists**
+```{r}
+list(1,2,3)
+list(c(1,2,3))
+list(MyData,1:4)
+```
+
+**Matrices**
+```{r}
+A=matrix(1:9,nrow = 3)
+A
+B=matrix(10:18,nrow=3)
+A+B
+A*B ##矩阵元素对应相乘
+A%*%B #矩阵乘法运算AB
+```
+
+**读入数据**
+```{r}
+theUrl="http://www.jaredlander.com/data/Tomato%20First.csv"
+tomato=read.csv(file=theUrl)
+head(tomato)
+require(XML) ## or library(XML)
+#theURL="http://www.jaredlander.com/2012/02/another-kind-of-super-bowl-pool/"
+#bowPool=readHTMLTable(theURL,which=1,header=FALSE,stringA$Factors=FLASE) ##which 用来指明第几次表格
+#write.csv(bowlPool,"bowlPool.csv")
+
+```
+
+
+
+#简单画图
+
+```{r}
+library(coefplot)                                                                       
+```
+
+
+```{r}
+data("diamonds")
+head(diamonds)
+```
+
+*直方图*
+```{r cars}
+hist(diamonds$carat,main="克拉直方图",xlab="克拉",ylab="频率")
+```
+
+*散点图*
+```{r}
+plot(price~carat,data=diamonds,xlab="克拉",ylab="价格",main="散点图")
+```
+
+*箱线图*
+```{r}
+boxplot(diamonds$carat)
+```
+
+#利用ggplot2画图
+## 直方图
+```{r}
+ggplot(data=diamonds,aes(x=carat))+geom_histogram()+facet_wrap(~color)
+```
+
+facet_wrap(~color) 是指在一张图上按color分类画多个小图
+
+##散点图
+先把绘图框画出来
+按照color分类画点，不同color不同颜色
+```{r}
+g=ggplot(diamonds,aes(x=carat,y=price))
+g+geom_point(aes(color=color))
+```
+
+对不同color画不同的小图
+```{r}
+g+geom_point(aes(color=color))+facet_wrap(~color)
+```
+
+*散点图上加直线*
+```{r}
+library(gcookbook)
+p=ggplot(heightweight,aes(x=ageYear,y=heightIn,colour=sex))+geom_point()
+```
+
+加上坐标轴，自定义位置
+geom_hline()加上横轴线，geom_vline()加上纵轴线
+```{r}
+p+geom_hline(yintercept = 60)+geom_vline(xintercept = 14)
+```
+
+在散点图上加一条斜线
+linetype="dashed"线段
+```{r}
+p+geom_abline(intercept = 37.4,slope=1.75,linetype="dashed",size=2,colour="darkgreen")
+```
+
+
+##箱线图
+
+```{r}
+ggplot(diamonds,aes(y=carat,x=1))+geom_boxplot()
+```
+
+按cut分类画多个小箱线图
+```{r}
+ggplot(diamonds,aes(y=carat,x=cut))+geom_boxplot()
+```
+
+boxplot表现出，切得完美的carat数比较小；and carat的中位数随着cut变化递减，但premium 的中位数上升一点，原因可能是因为：在大多数人能切成premium的情况下，再将premium切成ideal成本过高。
+
+##二维密度图
+绘制2D等高线主要是调用stat_density函数。这个函数会给出一个基于数据的二维核密度估计，然后我们可基于这个估计值来判断各样本点的"等高"性。
+colour设置等高线颜色，使用..level..，将密度曲面的高度映射给等高线的颜色，衡量数据分布的密集情况是通过默认的等高线展示。
+```{r}
+p= ggplot(faithful,aes(x=eruptions,y=waiting))
+p+geom_point()+ stat_density2d(aes(colour=..level..))
+```
+
+将密度估计映射给透明度，alpha表示透明度，其数据为密度
+```{r}
+p+geom_point()+ stat_density2d(aes(alpha=..density..),geom="tile",contour = F)
+```
+
+也可以选择瓦片图展示数据的分布情况
+```{r}
+p+geom_point()+ stat_density2d(aes(fill=..density..),geom="tile",contour = F)
+```
+
+绘制二维数据的密度图并加上解释
+```{r}
+p1=p+geom_point()+stat_density2d(aes(alpha=..density..),geom="tile",contour=F)
+p1+annotate("text",x=3,y=48,label="group1",family="serif",fontface="italic",colour="darkred",size=5)+
+  annotate("text",x=4.5,y=66,label="group2",family="serif",fontface="italic",colour="darkred",size=5)
+```
+fontface/family 都是调字体 darkred 深红色
+
+##条形图
+直方图：离散型变量
+条形图：连续型变量
+Geom_bar 条形图
+
+###普通条形图
+```{r}
+library(gcookbook)
+str(BOD)
+```
+
+绘图函数里的stat参数表示对样本点做统计的方式，即指统计变换，默认为identity，表示一个x对应一个y，是指不进行统计变换，即demand就是纵坐标值,也就是说identity提取横坐标x对应的y值
+
+```{r}
+ggplot(BOD,aes(x=Time,y=demand))+geom_bar(stat="identity")
+```
+
+同时还可以是stat=bin或者stat=count，表示一个x对应落到该x的样本数。也就是说bin、count提取横坐标x的频数,此时ggplot中的aes不应有y变量。geom_bar中的colour是指的每一个bar的外框颜色,该参数默认情况下是灰色
+```{r}
+ggplot(BOD,aes(x=Time))+geom_bar(stat="count")
+```
+
+发现时间为6时无数据，为作图把6列去掉，对xfactor化
+```{r}
+ggplot(BOD,aes(x=factor(Time),y=demand))+geom_bar(stat="identity")
+```
+
+另一组数据进行演示
+Fill 填充的颜色，Color 边界颜色
+```{r}
+str(pg_mean)
+ggplot(pg_mean,aes(x=group,y=weight))+geom_bar(stat="identity",fill="lightblue",colour="black")
+```
+
+###分组条形图
+分组fill写在aes里，poisition="dodge",bar记得写stat
+```{r}
+ggplot(cabbage_exp,aes(x=Date,y=Weight,fill=Cultivar))+geom_bar(position="dodge",stat="identity")
+```
+
+折叠款
+```{r}
+ggplot(cabbage_exp,aes(x=Date,y=Weight,fill=Cultivar))+geom_bar(stat="identity")
+```
+
+*另一组数据uspopchange*
+在大数据中取自己作图:subset
+```{r}
+upc=subset(uspopchange,rank(Change)>40)
+head(upc)
+```
+
+Scale_fill_manual（values=c(“#...”)）填充颜色
+Reorder()把一个变量根据另一个变量排序
+
+```{r}
+ggplot(upc,aes(x=reorder(Abb,Change),y=Change,fill=Region)) +geom_bar(stat="identity",colour="black")+scale_fill_manual(values=c("#669933","#FFcc66"))+xlab("State")
+```
+
+*另一组数据climate*
+```{r}
+head(climate)
+csub=subset(climate,Source=="Berkeley"&Year>=1900)
+head(csub)
+csub$pos=csub$Anomaly10y<=0
+head(csub)
+```
+
+csub$pos 增加一个逻辑型变量
+```{r}
+ggplot(csub,aes(x=Year,y=Anomaly10y,fill=pos))+geom_bar(stat="identity",position = "identity")
+```
+
+position位置调整：stack、dodge、fill、identity、jitter
+```{r}
+cusb3=subset(climate,Year>=1900&Year<=1901)
+```
+
+(1)identity方式是不做任何改变直接显示出来，所以需要设置透明度才能看得清楚
+
+```{r}
+ ggplot(cusb3,aes(x=Source,y=Anomaly10y,fill=factor(Year)))+geom_bar(stat="identity",position="identity")
+```
+
+(2)stack方式是将不同年份数据堆叠放置，是geom_bar的默认处理方式
+
+```{r}
+ ggplot(cusb3,aes(x=Source,y=Anomaly10y,fill=factor(Year)))+geom_bar(stat="identity",position="stack")
+```
+
+(3)dodge方式是将不同年份的数据并列放置；
+```{r}
+ggplot(cusb3,aes(x=Source,y=Anomaly10y,fill=factor(Year)))+geom_bar(stat="identity",position="dodge")
+```
+
+(4)fill方式和stack类似，但Y轴不再是计数，而是以百分比显示
+```{r}
+ggplot(cusb3,aes(x=Source,y=Anomaly10y,fill=factor(Year)))+geom_bar(stat="identity",position="fill")
+```
+
+##在图上进行标注
+```{r}
+library(grid)
+p=ggplot(subset(climate,Source=="Berkeley"),aes(x=Year,y=Anomaly10y))+geom_line()
+```
+
+p=ggplot(subset(climate,Source=="Berkeley"),aes(x=Year,y=Anomaly10y))+geom_line() 画出折线图
+Library(grid) 网格
+###annotate
+annotate中的类型有：text文本、rect阴影矩形、segment线段
+（1）类型为segment 时，后需加线段端点的坐标
+```{r}
+p+annotate("segment",x=1850,xend=1820,y=-0.8,yend=-0.95,colour="blue",size=2,arrow=arrow())+
+  annotate("segment",x=1950,xend=1980,y=-0.25,yend=-0.25,colour="green",size=2,arrow=arrow(ends="both",angle=90,length = unit(0.2,"cm")))
+```
+
+线段端点坐标：x=1850，xend=1820,y=-0.8,yend=-0.95 
+grid包中的arrow可以为segment线段添加箭头，箭头的方向就是xy的方向
+arrow() 不填内容则默认为单向箭头，方向是last的方向
+arrow(angle=,length,ends,type=)
+  angle 箭头的角度；length是指箭头的长度，
+  ends=last/first/both: 反正就箭头的方向
+  type=open/closed:closed指箭头是一个封闭的三角形
+
+(2)类型为rect时，指在图中生成一个阴影矩阵（用alpha来调节阴影透明度）后需加四个点的坐标，fill确定填充的颜色
+```{r}
+p + annotate("rect", xmin=1950, xmax=1980, ymin=-1, ymax=1, alpha=.1, fill="blue")
+```
+
+(3)类型为txt时，指在图中加文字标注，后加文字起始坐标，内容用label=""添加，也可用geom_text添加文字标注
+```{r}
+p + annotate("text", x=1950, y=0.2, label="承让了我的哥", alpha=1,colour="blue") +     # Normal
+    geom_text(x=1980, y=0, label="厉害了我的姐", alpha=.1,colour="green")            # Overplotted
+```
+
+*在图中添加数学公式*
+```{r}
+p + annotate("text", x = 1950, y = 0.5, parse = TRUE, size = 4, label = "'Function:  ' * y==frac(1, sqrt(2*pi)) * e^{-x^2/2}" )+
+ annotate("text", x = 1950, y = -0.2, parse = TRUE, label = "frac(1, sqrt(2 * pi)) * e ^ {-x^2 / 2}")
+```
+
+注意：parse=TRUE
+用*在两部分之间进行连接 普通的文字用单引号引起来
+
+###geom_text
+*在条形图上标数据*
+```{r}
+library(plyr)
+ce<-ddply(cabbage_exp,"Date",transform,percent_Weight=Weight/sum(Weight)*100)
+head(ce)
+ggplot(ce,aes(x=Date,y=Weight,fill=Cultivar))+geom_bar(stat="identity",position="dodge")+geom_text(aes(label=Weight),vjust=1.5,colour="white",position = position_dodge(.9),size=3)
+```
+
+1.对于水平交错的簇条形图(即bar中的position="dodge")，必须通过geom_text()函数中的position_dodge()参数来调整标签位置，position_dodge(width),此时的width为两个文字标签之间的宽度
+2.geom_bar()函数中的position = 'stack'参数，标签位置geom_text()函数中的position = position_stack()参数.
+
+geom_text()中的size为字体大小,colour更换标签颜色,
+            vjust调整标签位置，1为分界线，越大于1，标签越在条形图上界*下方*，反之则越在条形图上上界上方。 vjust>0时是标签向下调整,hjust=0.5将标签水平居中放置.
+关于geom_text参数，可以参考：http://www.sohu.com/a/125919313_466874
+
+##折线图
+```{r}
+head(ToothGrowth)
+tg<-ddply(ToothGrowth,c("supp","dose"),summarise,length=mean(len))
+ggplot(tg,aes(x=dose,y=length,linetype=supp,colour=supp,shape=supp))+geom_line()+geom_point(size=4)
+```
+
+
+##面积图
+```{r}
+head(uspopage)
+ggplot(uspopage,aes(x=Year,y=Thousands,fill=AgeGroup))+geom_area(colour="black",size=.2,alpha=.4)+scale_fill_brewer(palette="Blues",breaks=rev(levels(uspopage$AgeGroup)))
+```
+
+scale_colour/fill_brewer(..., type = "seq", palette = 1) 
+①type表示颜色样式 有seq、div、qual三个中选一个，即供sequential,diverging和qualitative三种种配色方案。适合用于离散数据
+②palette 表示颜色数量 数字直接表示颜色个数，也可以用相对应的名称，当表示配色方案，可以是Blues,Set1,Set2,Set3,GnBu,Reds等等
+③breaks控制着显示在坐标轴或图例上的值,rev函数进行向量倒序
+关于ColorBrewer的一个介绍，可见网址：http://blog.sina.com.cn/s/blog_681aaa5501016tk4.html
+
+geom_area() 面积图
+
+##综合——分组条形图（百分比）
+```{r}
+library(gcookbook)
+library(plyr)
+ce<-ddply(cabbage_exp,"Date",transform,percent_Weight=Weight/sum(Weight)*100)
+ggplot(ce,aes(x=Date,y=percent_Weight,fill=Cultivar))+geom_bar(stat="identity",colour="black")+scale_fill_brewer(palette="Pastel1")
+
+```
+
+####ddply()函数
+  plyr的ddply()函数能够在数据框内实现“①数据切分->②分块处理->③结果合并”三步操作，而后再根据结果生成一个新的独立数据框。这也正是ddply()函数前两个字母“dd”的含义：输入一个data frame，再得到另一个data frame。
+具体格式如下：
+  ddply(mydata, c('column name of a factor to group by', 'column name of the second factor to group by'), summarize OR transform, newcolumn = myfunction(column name(s) I want the function to act upon))
+
+①第一个参数是原始数据框名称，
+②第二个参数则是我们打算划分为子集的column名称(即以DATE为划分依据进行划分子集）。即用来分割数数据框的一个或多个*列*元素。此元素可以不是名义变量。当有多个变量时，按照各个变量的顺序依次递归对数据进行分组
+③第三个参数：transform/summarize：
+             transform能够对不同分组内的数据进行转换。如下R语代码能够将cabbages数据框按照Cult列因子进行分组，并在数据框中创建一个新的名为DevWt的列，该新列值由原某列值减分组均值得到：
+```{r}
+library(MASS)
+cb1 = ddply(cabbages, "Cult", transform, DevWt = HeadWt - mean(HeadWt))
+```
+
+             summarize能够对不同分组内的数据进行汇总。汇总和上面介绍的转换的区别在于汇总结果的记录数等于分组的个数，而转换操作后记录数是不变的，只是对原列进行改动转换。
+             Summarize不会提供来自原始数据框中其它列中的任何信息,如果大家需要列出其它column数据，则可以把“summarize”替换为“transform”。如下R语言代码将cabbages数据框按照Cult因子进行分组，并在数据框中创建一个新的名为Devwt的列：
+             
+```{r}
+cb2 = ddply(cabbages,"Cult", summarise, DevWt = HeadWt - mean(HeadWt))
+head(cb1);head(cb2)
+```
+
+④第四项参数用于命名新column并列出我们希望ddply()使用的函数清单(即写函数)。
+
+
+>引用 豆瓣上一个很好的关于分组的R语言教程：https://www.douban.com/group/topic/64853383/
+
+## 气泡图
+```{r}
+head(countries)
+cdat=subset(countries,Year==2009&Name %in% c("Canada","Ireland","United Kingdom","New Zealand","Iceland","Japan","Luxembourg","Netherlands","Switherland"))
+g=ggplot(cdat,aes(x=healthexp,y=infmortality,size=GDP))+geom_point(shape=21,colour="black",fill="cornsilk")+scale_size_area(max_size=15)
+n=nrow(cdat)
+for(i in 1:n){
+  g=g+annotate("text",x=cdat[i,]$healthexp+100*nchar(as.character(cdat$Name[i]))+300,y=cdat[i,]$infmortality,label=cdat[i,]$Name,family="serif",fontface="italic",colour="darkred",size=5)
+}
+g+scale_x_continuous(limits = c(0,11000)) 
+```
+
+%in% 取子集 
+
+在给本图添加label的时候，使用循环语句。
+坐标需要根据国家名字的长度进行向右移动的调整，不同国家由于名字不一样长，向右移动的距离不一样。且要改变x坐标轴的长度，以方便完全显示出label。
+
+scale_x_continuous(limits = c(0,11000))  设置了x轴范围
